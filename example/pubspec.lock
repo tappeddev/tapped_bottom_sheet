@@ -42,7 +42,7 @@ packages:
     source: hosted
     version: "1.18.0"
   cupertino_icons:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: cupertino_icons
       sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
@@ -132,7 +132,7 @@ packages:
     source: hosted
     version: "1.11.0"
   non_uniform_border:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: non_uniform_border
       sha256: a2676d171f7493cb3faf6339552570dba96512a90b5955b921602782153f3c81
@@ -184,14 +184,12 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  tapped_lints:
-    dependency: "direct dev"
+  tapped_bottom_sheet:
+    dependency: "direct main"
     description:
-      path: "."
-      ref: master
-      resolved-ref: eadf6429533826082415e4a7737433f5de9498b8
-      url: "https://github.com/tappeddev/tapped_lints.git"
-    source: git
+      path: ".."
+      relative: true
+    source: path
     version: "1.0.0+1"
   term_glyph:
     dependency: transitive
