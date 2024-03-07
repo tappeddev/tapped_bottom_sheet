@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:tapped_bottom_sheet/scrollable_bottom_sheet.dart';
 
 void main() {
