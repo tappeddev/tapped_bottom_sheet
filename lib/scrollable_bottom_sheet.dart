@@ -50,14 +50,16 @@ class ScrollableBottomSheet extends StatefulWidget {
   }
 }
 
-class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with SingleTickerProviderStateMixin {
+class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
+    with SingleTickerProviderStateMixin {
   final _scrollController = ScrollController();
   late AnimationController _animationController;
   final _velocityTracker = VelocityTracker.withKind(PointerDeviceKind.touch);
   var _scrollingEnabled = false;
   var _isScrollingBlocked = false;
 
-  Tween<double> get _sizeTween => Tween(begin: widget.minHeight, end: widget.maxHeight);
+  Tween<double> get _sizeTween =>
+      Tween(begin: widget.minHeight, end: widget.maxHeight);
 
   bool get _isPanelOpen => _animationController.value == 1.0;
 
@@ -72,7 +74,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     _animationController = AnimationController(
       vsync: this,
       duration: widget.animationDuration,
-      value: widget.initialPosition == null ? 0.0 : _pixelToValue(widget.initialPosition!),
+      value: widget.initialPosition == null
+          ? 0.0
+          : _pixelToValue(widget.initialPosition!),
     )..addListener(_notifyScrollListeners);
   }
 
@@ -85,17 +89,22 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
+    final borderRadius =
+        BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
 
     return Listener(
-      onPointerDown: widget.canDrag ? (p) => _velocityTracker.addPosition(p.timeStamp, p.position) : null,
+      onPointerDown: widget.canDrag
+          ? (p) => _velocityTracker.addPosition(p.timeStamp, p.position)
+          : null,
       onPointerMove: widget.canDrag
           ? (p) {
               _velocityTracker.addPosition(p.timeStamp, p.position);
               _onDragUpdate(p.delta.dy);
             }
           : null,
-      onPointerUp: widget.canDrag ? (p) => _onGestureEnd(_velocityTracker.getVelocity()) : null,
+      onPointerUp: widget.canDrag
+          ? (p) => _onGestureEnd(_velocityTracker.getVelocity())
+          : null,
       child: MediaQuery.removePadding(
         context: context,
         removeTop: true,
@@ -124,7 +133,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
                 );
               },
               child: Builder(
-                builder: (context) => widget.builder(context, _scrollController),
+                builder: (context) =>
+                    widget.builder(context, _scrollController),
               ),
             ),
           ),
@@ -144,7 +154,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     // if the panel is open and the user hasn't scrolled, we need to determine
     // whether to enable scrolling if the user swipes up, or disable closing and
     // begin to close the panel if the user swipes down
-    if (_isPanelOpen && _scrollController.hasClients && _scrollController.offset <= 0) {
+    if (_isPanelOpen &&
+        _scrollController.hasClients &&
+        _scrollController.offset <= 0) {
       setState(() => _scrollingEnabled = dy < 0);
     }
 
@@ -179,7 +191,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     final dyVelocity = velocity.pixelsPerSecond.dy;
     final visualVelocity = -dyVelocity / (widget.maxHeight - widget.minHeight);
 
-    final newPosition = _findNearestRelativeSnapPoint(target: _animationController.value);
+    final newPosition =
+        _findNearestRelativeSnapPoint(target: _animationController.value);
 
     switch (newPosition) {
       case 1.0:
@@ -233,7 +246,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
   }
 
   Future<void> animateToNearestSnapPoint() {
-    final newPosition = _findNearestRelativeSnapPoint(target: _animationController.value);
+    final newPosition =
+        _findNearestRelativeSnapPoint(target: _animationController.value);
     return animateTo(
       pixels: _sizeTween.transform(newPosition),
       duration: widget.animationDuration,
