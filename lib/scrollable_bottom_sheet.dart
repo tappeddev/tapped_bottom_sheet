@@ -11,8 +11,8 @@ typedef ScrollableBottomSheetBuilder = Widget Function(
 class ScrollableBottomSheet extends StatefulWidget {
   final double maxHeight;
   final double minHeight;
-  final List<double> snapPoints;
-  final ValueChanged<double>? onScrollPositionChanged;
+  final List<double> snapPositions;
+  final void Function(double animation, double height)? onSizeChanged;
   final ScrollableBottomSheetBuilder builder;
   final Duration animationDuration;
   final double? initialPosition;
@@ -28,13 +28,13 @@ class ScrollableBottomSheet extends StatefulWidget {
 
   const ScrollableBottomSheet({
     super.key,
-    required this.snapPoints,
     required this.maxHeight,
     required this.minHeight,
     required this.builder,
+    this.snapPositions = const <double>[],
     this.canDrag = true,
     this.animationDuration = const Duration(milliseconds: 350),
-    this.onScrollPositionChanged,
+    this.onSizeChanged,
     this.initialPosition,
     required this.borderRadiusTop,
     required this.borderColor,
@@ -50,14 +50,16 @@ class ScrollableBottomSheet extends StatefulWidget {
   }
 }
 
-class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with SingleTickerProviderStateMixin {
+class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
+    with SingleTickerProviderStateMixin {
   final _scrollController = ScrollController();
   late AnimationController _animationController;
   final _velocityTracker = VelocityTracker.withKind(PointerDeviceKind.touch);
   var _scrollingEnabled = false;
   var _isScrollingBlocked = false;
 
-  Tween<double> get _sizeTween => Tween(begin: widget.minHeight, end: widget.maxHeight);
+  Tween<double> get _sizeTween =>
+      Tween(begin: widget.minHeight, end: widget.maxHeight);
 
   bool get _isPanelOpen => _animationController.value == 1.0;
 
@@ -72,7 +74,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     _animationController = AnimationController(
       vsync: this,
       duration: widget.animationDuration,
-      value: widget.initialPosition == null ? 0.0 : _pixelToValue(widget.initialPosition!),
+      value: widget.initialPosition == null
+          ? 0.0
+          : _pixelToValue(widget.initialPosition!),
     )..addListener(_notifyScrollListeners);
   }
 
@@ -85,17 +89,22 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
+    final borderRadius =
+        BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
 
     return Listener(
-      onPointerDown: widget.canDrag ? (p) => _velocityTracker.addPosition(p.timeStamp, p.position) : null,
+      onPointerDown: widget.canDrag
+          ? (p) => _velocityTracker.addPosition(p.timeStamp, p.position)
+          : null,
       onPointerMove: widget.canDrag
           ? (p) {
               _velocityTracker.addPosition(p.timeStamp, p.position);
               _onDragUpdate(p.delta.dy);
             }
           : null,
-      onPointerUp: widget.canDrag ? (p) => _onGestureEnd(_velocityTracker.getVelocity()) : null,
+      onPointerUp: widget.canDrag
+          ? (p) => _onGestureEnd(_velocityTracker.getVelocity())
+          : null,
       child: MediaQuery.removePadding(
         context: context,
         removeTop: true,
@@ -124,7 +133,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
                 );
               },
               child: Builder(
-                builder: (context) => widget.builder(context, _scrollController),
+                builder: (context) =>
+                    widget.builder(context, _scrollController),
               ),
             ),
           ),
@@ -144,7 +154,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     // if the panel is open and the user hasn't scrolled, we need to determine
     // whether to enable scrolling if the user swipes up, or disable closing and
     // begin to close the panel if the user swipes down
-    if (_isPanelOpen && _scrollController.hasClients && _scrollController.offset <= 0) {
+    if (_isPanelOpen &&
+        _scrollController.hasClients &&
+        _scrollController.offset <= 0) {
       setState(() => _scrollingEnabled = dy < 0);
     }
 
@@ -179,7 +191,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     final dyVelocity = velocity.pixelsPerSecond.dy;
     final visualVelocity = -dyVelocity / (widget.maxHeight - widget.minHeight);
 
-    final newPosition = _findNearestRelativeSnapPoint(target: _animationController.value);
+    final newPosition =
+        _findNearestRelativeSnapPoint(target: _animationController.value);
 
     switch (newPosition) {
       case 1.0:
@@ -207,7 +220,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
   }
 
   double _findNearestRelativeSnapPoint({required double target}) {
-    final snapValues = widget.snapPoints.map(_pixelToValue).toList();
+    final snapValues = widget.snapPositions.map(_pixelToValue).toList();
     return _findClosestPosition(
       positions: [0, ...snapValues, 1],
       target: target,
@@ -233,7 +246,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
   }
 
   Future<void> animateToNearestSnapPoint() {
-    final newPosition = _findNearestRelativeSnapPoint(target: _animationController.value);
+    final newPosition =
+        _findNearestRelativeSnapPoint(target: _animationController.value);
     return animateTo(
       pixels: _sizeTween.transform(newPosition),
       duration: widget.animationDuration,
@@ -270,10 +284,10 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
   // endregion
 
   void _notifyScrollListeners() {
-    if (widget.onScrollPositionChanged == null) return;
+    if (widget.onSizeChanged == null) return;
 
     final size = _sizeTween.transform(_animationController.value);
-    widget.onScrollPositionChanged!.call(size);
+    widget.onSizeChanged!.call(_animationController.value, size);
   }
 }
 

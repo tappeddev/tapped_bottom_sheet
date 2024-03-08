@@ -1,2 +1,1 @@
-#lints
 include: package:tapped_lints/flutter-3.10.yaml
