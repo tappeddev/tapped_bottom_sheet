@@ -167,6 +167,15 @@ packages:
       relative: true
     source: path
     version: "1.0.0+1"
+  tapped_lints:
+    dependency: "direct dev"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: eadf6429533826082415e4a7737433f5de9498b8
+      url: "https://github.com/tappeddev/tapped_lints.git"
+    source: git
+    version: "1.0.0+1"
   term_glyph:
     dependency: transitive
     description:
