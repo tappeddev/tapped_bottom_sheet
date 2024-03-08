@@ -19,17 +19,15 @@ class MainApp extends StatelessWidget {
         body: Stack(
           children: [
             Positioned.fill(
-                child: Container(
-              color: Colors.green,
-            )),
+              child: Container(
+                color: Colors.green,
+              ),
+            ),
             Align(
               alignment: Alignment.bottomCenter,
               child: ScrollableBottomSheet(
                 snapPositions: [maxHeight / 2],
                 initialPosition: maxHeight / 2,
-                onSizeChanged: (tween,height) {
-                  print(tween);
-                },
                 maxHeight: maxHeight,
                 minHeight: 100,
                 builder: (context, scrollController) {
