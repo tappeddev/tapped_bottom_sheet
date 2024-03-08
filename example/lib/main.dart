@@ -27,6 +27,9 @@ class MainApp extends StatelessWidget {
               child: ScrollableBottomSheet(
                 snapPoints: [maxHeight / 2],
                 initialPosition: maxHeight / 2,
+                onSizeChanged: (tween,height) {
+                  print(tween);
+                },
                 maxHeight: maxHeight,
                 minHeight: 100,
                 builder: (context, scrollController) {

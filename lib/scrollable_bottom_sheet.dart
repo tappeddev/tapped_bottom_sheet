@@ -12,7 +12,7 @@ class ScrollableBottomSheet extends StatefulWidget {
   final double maxHeight;
   final double minHeight;
   final List<double> snapPoints;
-  final ValueChanged<double>? onSizeChanged;
+  final void Function(double animation, double height)? onSizeChanged;
   final ScrollableBottomSheetBuilder builder;
   final Duration animationDuration;
   final double? initialPosition;
@@ -273,7 +273,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     if (widget.onSizeChanged == null) return;
 
     final size = _sizeTween.transform(_animationController.value);
-    widget.onSizeChanged!.call(size);
+    widget.onSizeChanged!.call(_animationController.value, size);
   }
 }
 
