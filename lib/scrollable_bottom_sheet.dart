@@ -28,10 +28,10 @@ class ScrollableBottomSheet extends StatefulWidget {
 
   const ScrollableBottomSheet({
     super.key,
-    required this.snapPoints,
     required this.maxHeight,
     required this.minHeight,
     required this.builder,
+    this.snapPoints = const <double>[],
     this.canDrag = true,
     this.animationDuration = const Duration(milliseconds: 350),
     this.onSizeChanged,
