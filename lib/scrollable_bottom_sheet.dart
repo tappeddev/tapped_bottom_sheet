@@ -11,7 +11,7 @@ typedef ScrollableBottomSheetBuilder = Widget Function(
 class ScrollableBottomSheet extends StatefulWidget {
   final double maxHeight;
   final double minHeight;
-  final List<double> snapPoints;
+  final List<double> snapPositions;
   final void Function(double animation, double height)? onSizeChanged;
   final ScrollableBottomSheetBuilder builder;
   final Duration animationDuration;
@@ -31,7 +31,7 @@ class ScrollableBottomSheet extends StatefulWidget {
     required this.maxHeight,
     required this.minHeight,
     required this.builder,
-    this.snapPoints = const <double>[],
+    this.snapPositions = const <double>[],
     this.canDrag = true,
     this.animationDuration = const Duration(milliseconds: 350),
     this.onSizeChanged,
@@ -207,7 +207,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
   }
 
   double _findNearestRelativeSnapPoint({required double target}) {
-    final snapValues = widget.snapPoints.map(_pixelToValue).toList();
+    final snapValues = widget.snapPositions.map(_pixelToValue).toList();
     return _findClosestPosition(
       positions: [0, ...snapValues, 1],
       target: target,

@@ -25,7 +25,7 @@ class MainApp extends StatelessWidget {
             Align(
               alignment: Alignment.bottomCenter,
               child: ScrollableBottomSheet(
-                snapPoints: [maxHeight / 2],
+                snapPositions: [maxHeight / 2],
                 initialPosition: maxHeight / 2,
                 onSizeChanged: (tween,height) {
                   print(tween);
