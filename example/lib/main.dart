@@ -32,6 +32,7 @@ class MainApp extends StatelessWidget {
                 minHeight: 100,
                 builder: (context, scrollController) {
                   return ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
                     controller: scrollController,
                     itemCount: 100,
                     itemBuilder: (context, index) {
