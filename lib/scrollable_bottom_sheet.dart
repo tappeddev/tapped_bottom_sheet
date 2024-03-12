@@ -158,7 +158,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
       // _drag might be null if the drag activity ended and called _disposeDrag.
       assert(_hold == null || _drag == null);
       _drag?.update(details);
-      if (_scrollController.position.pixels <= 0 && details.primaryDelta! > 0) {
+      if (_scrollController.hasClients &&
+          _scrollController.position.pixels <= 0 &&
+          details.primaryDelta! > 0) {
         setState(() => _isScrollingEnabled = false);
         _handleDragCancel();
         if (_scrollController.position.pixels != 0.0) {
