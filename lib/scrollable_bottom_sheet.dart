@@ -57,7 +57,8 @@ class ScrollableBottomSheet extends StatefulWidget {
   }
 }
 
-class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with SingleTickerProviderStateMixin {
+class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
+    with SingleTickerProviderStateMixin {
   final _scrollController = ScrollController();
   late AnimationController _animationController;
   var _isScrollingEnabled = false;
@@ -67,7 +68,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
 
   ScrollHoldController? _hold;
 
-  Tween<double> get _sizeTween => Tween(begin: widget.minHeight, end: widget.maxHeight);
+  Tween<double> get _sizeTween =>
+      Tween(begin: widget.minHeight, end: widget.maxHeight);
 
   bool get _isPanelOpen => _animationController.value == 1.0;
 
@@ -82,7 +84,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     _animationController = AnimationController(
       vsync: this,
       duration: widget.animationDuration,
-      value: widget.initialPosition == null ? 0.0 : _pixelToValue(widget.initialPosition!),
+      value: widget.initialPosition == null
+          ? 0.0
+          : _pixelToValue(widget.initialPosition!),
     )..addListener(_notifyScrollListeners);
   }
 
@@ -95,7 +99,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
+    final borderRadius =
+        BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
 
     return GestureListener(
       onVerticalDragUpdate: (details) => _onDragUpdate(details),
@@ -129,7 +134,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
                 );
               },
               child: Builder(
-                builder: (context) => widget.builder(context, _scrollController),
+                builder: (context) =>
+                    widget.builder(context, _scrollController),
               ),
             ),
           ),
@@ -160,20 +166,24 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
 
     // only slide the panel if scrolling is not enabled
     if (!_isScrollingEnabled && !_isScrollingBlocked) {
-      _animationController.value -= primaryDelta / (widget.maxHeight - widget.minHeight);
+      _animationController.value -=
+          primaryDelta / (widget.maxHeight - widget.minHeight);
     }
 
     // if the panel is open and the user hasn't scrolled, we need to determine
     // whether to enable scrolling if the user swipes up, or disable closing and
     // begin to close the panel if the user swipes down
-    if (_isPanelOpen && _scrollController.hasClients && _scrollController.offset <= 0) {
+    if (_isPanelOpen &&
+        _scrollController.hasClients &&
+        _scrollController.offset <= 0) {
       final scrollingEnabled = primaryDelta < 0;
 
       setState(() => _isScrollingEnabled = scrollingEnabled);
 
       if (scrollingEnabled) {
-        final startDetails =
-            DragStartDetails(sourceTimeStamp: details.sourceTimeStamp, globalPosition: details.globalPosition);
+        final startDetails = DragStartDetails(
+            sourceTimeStamp: details.sourceTimeStamp,
+            globalPosition: details.globalPosition);
         _hold = _scrollController.position.hold(_disposeHold);
         _drag = _scrollController.position.drag(startDetails, _disposeDrag);
       }
@@ -207,9 +217,11 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     }
 
     final scrollPixelPerSeconds = details.velocity.pixelsPerSecond.dy;
-    final flingVelocity = -scrollPixelPerSeconds / (widget.maxHeight - widget.minHeight);
+    final flingVelocity =
+        -scrollPixelPerSeconds / (widget.maxHeight - widget.minHeight);
 
-    final nearestSnapPoint = _findNearestRelativeSnapPoint(target: _animationController.value);
+    final nearestSnapPoint =
+        _findNearestRelativeSnapPoint(target: _animationController.value);
 
     if (scrollPixelPerSeconds > widget.completeFlingVelocity) {
       if (flingVelocity.isNegative) {
@@ -270,7 +282,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
   }
 
   Future<void> animateToNearestSnapPoint() {
-    final newPosition = _findNearestRelativeSnapPoint(target: _animationController.value);
+    final newPosition =
+        _findNearestRelativeSnapPoint(target: _animationController.value);
     return animateTo(
       pixels: _sizeTween.transform(newPosition),
       duration: widget.animationDuration,
