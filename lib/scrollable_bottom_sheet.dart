@@ -25,6 +25,8 @@ class ScrollableBottomSheet extends StatefulWidget {
 
   final Color borderColor;
 
+  final bool canDrag;
+
   final Color backgroundColor;
   final List<BoxShadow>? shadows;
 
@@ -38,6 +40,7 @@ class ScrollableBottomSheet extends StatefulWidget {
     required this.minHeight,
     required this.builder,
     this.snapPositions = const <double>[],
+    this.canDrag = true,
     this.animationDuration = const Duration(milliseconds: 350),
     this.onSizeChanged,
     this.initialPosition,
@@ -103,6 +106,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
         BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
 
     return GestureListener(
+      canDrag: widget.canDrag,
       onVerticalDragUpdate: (details) => _onDragUpdate(details),
       onVerticalDragEnd: (details) => _onDragEnd(details),
       onVerticalDragCancel: () => _handleDragCancel(),
@@ -182,8 +186,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
 
       if (scrollingEnabled) {
         final startDetails = DragStartDetails(
-            sourceTimeStamp: details.sourceTimeStamp,
-            globalPosition: details.globalPosition);
+          sourceTimeStamp: details.sourceTimeStamp,
+          globalPosition: details.globalPosition,
+        );
         _hold = _scrollController.position.hold(_disposeHold);
         _drag = _scrollController.position.drag(startDetails, _disposeDrag);
       }

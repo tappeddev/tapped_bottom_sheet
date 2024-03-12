@@ -6,10 +6,13 @@ class GestureListener extends StatefulWidget {
   final void Function(DragEndDetails) onVerticalDragEnd;
   final void Function() onVerticalDragCancel;
 
+  final bool canDrag;
+
   final Widget child;
 
   const GestureListener({
     super.key,
+    required this.canDrag,
     required this.onVerticalDragUpdate,
     required this.onVerticalDragEnd,
     required this.onVerticalDragCancel,
@@ -27,9 +30,13 @@ class _GestureListenerState extends State<GestureListener> {
   Widget build(BuildContext context) {
     return Listener(
       onPointerDown: (event) {
+        if (!widget.canDrag) return;
+
         _velocityTracker.addPosition(event.timeStamp, event.position);
       },
       onPointerMove: (event) {
+        if (!widget.canDrag) return;
+
         _velocityTracker.addPosition(event.timeStamp, event.position);
 
         final delta = event.delta;
@@ -49,6 +56,8 @@ class _GestureListenerState extends State<GestureListener> {
         widget.onVerticalDragUpdate(details);
       },
       onPointerUp: (event) {
+        if (!widget.canDrag) return;
+
         final velocity = _velocityTracker.getVelocity();
 
         final pixelsPerSecondY = velocity.pixelsPerSecond.dy;
@@ -62,7 +71,11 @@ class _GestureListenerState extends State<GestureListener> {
 
         widget.onVerticalDragEnd(details);
       },
-      onPointerCancel: (event) => widget.onVerticalDragCancel(),
+      onPointerCancel: (event) {
+        if (!widget.canDrag) return;
+
+        widget.onVerticalDragCancel();
+      },
       child: widget.child,
     );
   }
