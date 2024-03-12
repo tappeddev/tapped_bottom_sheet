@@ -10,7 +10,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = MediaQuery.of(context).size.height - kToolbarHeight;
+    final maxHeight = MediaQuery.of(context).size.height - kToolbarHeight - 100;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
