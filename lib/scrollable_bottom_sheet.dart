@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:non_uniform_border/non_uniform_border.dart';
+import 'package:tapped_bottom_sheet/gesture_listener.dart';
 
 typedef ScrollableBottomSheetBuilder = Widget Function(
   BuildContext context,
@@ -59,9 +60,12 @@ class ScrollableBottomSheet extends StatefulWidget {
 class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with SingleTickerProviderStateMixin {
   final _scrollController = ScrollController();
   late AnimationController _animationController;
-  final _velocityTracker = VelocityTracker.withKind(PointerDeviceKind.touch);
-  var _scrollingEnabled = false;
+  var _isScrollingEnabled = false;
   var _isScrollingBlocked = false;
+
+  Drag? _drag;
+
+  ScrollHoldController? _hold;
 
   Tween<double> get _sizeTween => Tween(begin: widget.minHeight, end: widget.maxHeight);
 
@@ -93,13 +97,10 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
 
-    return Listener(
-      onPointerDown: (event) => _velocityTracker.addPosition(event.timeStamp, event.position),
-      onPointerMove: (event) {
-        _velocityTracker.addPosition(event.timeStamp, event.position);
-        _onDragUpdate(event);
-      },
-      onPointerUp: (event) => _onGestureEnd(_velocityTracker.getVelocity()),
+    return GestureListener(
+      onVerticalDragUpdate: (details) => _onDragUpdate(details),
+      onVerticalDragEnd: (details) => _onDragEnd(details),
+      onVerticalDragCancel: () => _handleDragCancel(),
       child: MediaQuery.removePadding(
         context: context,
         removeTop: true,
@@ -139,19 +140,43 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
 
   // region drag updates
 
-  void _onDragUpdate(PointerMoveEvent event) {
-    final dy = event.delta.dy;
+  void _onDragUpdate(DragUpdateDetails details) {
+    final delta = details.delta;
+    final primaryDelta = delta.dy;
+
+    if (_isScrollingEnabled && _isPanelOpen) {
+      // _drag might be null if the drag activity ended and called _disposeDrag.
+      assert(_hold == null || _drag == null);
+      _drag?.update(details);
+      if (_scrollController.position.pixels <= 0 && details.primaryDelta! > 0) {
+        setState(() => _isScrollingEnabled = false);
+        _handleDragCancel();
+        if (_scrollController.position.pixels != 0.0) {
+          _scrollController.position.setPixels(0.0);
+        }
+      }
+      return;
+    }
 
     // only slide the panel if scrolling is not enabled
-    if (!_scrollingEnabled && !_isScrollingBlocked) {
-      _animationController.value -= dy / (widget.maxHeight - widget.minHeight);
+    if (!_isScrollingEnabled && !_isScrollingBlocked) {
+      _animationController.value -= primaryDelta / (widget.maxHeight - widget.minHeight);
     }
 
     // if the panel is open and the user hasn't scrolled, we need to determine
     // whether to enable scrolling if the user swipes up, or disable closing and
     // begin to close the panel if the user swipes down
     if (_isPanelOpen && _scrollController.hasClients && _scrollController.offset <= 0) {
-      setState(() => _scrollingEnabled = dy < 0);
+      final scrollingEnabled = primaryDelta < 0;
+
+      setState(() => _isScrollingEnabled = scrollingEnabled);
+
+      if (scrollingEnabled) {
+        final startDetails =
+            DragStartDetails(sourceTimeStamp: details.sourceTimeStamp, globalPosition: details.globalPosition);
+        _hold = _scrollController.position.hold(_disposeHold);
+        _drag = _scrollController.position.drag(startDetails, _disposeDrag);
+      }
     }
   }
 
@@ -160,12 +185,12 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
   // region animation and scroll
 
   void _onScroll() {
-    if (!_scrollingEnabled || _isScrollingBlocked) {
+    if (!_isScrollingEnabled || _isScrollingBlocked) {
       _scrollController.jumpTo(0);
     }
   }
 
-  void _onGestureEnd(Velocity velocity) {
+  void _onDragEnd(DragEndDetails details) {
     if (_isScrollingBlocked) return;
 
     // let the current animation finish before starting a new one
@@ -173,9 +198,15 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
 
     // if scrolling is allowed and the panel is open, we don't want to close
     // the panel if they swipe up on the scrollable
-    if (_isPanelOpen && _scrollingEnabled) return;
+    if (_isPanelOpen && _isScrollingEnabled) {
+      assert(_hold == null || _drag == null);
+      _drag?.end(details);
+      assert(_drag == null);
 
-    final scrollPixelPerSeconds = velocity.pixelsPerSecond.dy;
+      return;
+    }
+
+    final scrollPixelPerSeconds = details.velocity.pixelsPerSecond.dy;
     final flingVelocity = -scrollPixelPerSeconds / (widget.maxHeight - widget.minHeight);
 
     final nearestSnapPoint = _findNearestRelativeSnapPoint(target: _animationController.value);
@@ -223,7 +254,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
   // region panel options
 
   Future<void> close() async {
-    setState(() => _scrollingEnabled = false);
+    setState(() => _isScrollingEnabled = false);
 
     await _scrollController.animateTo(
       0.0,
@@ -260,7 +291,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
 
     // Reset the initial state, since we had some issues in the full state of the booking summary
     setState(() {
-      _scrollingEnabled = false;
+      _isScrollingEnabled = false;
       _isScrollingBlocked = false;
     });
   }
@@ -280,6 +311,24 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
 
     final size = _sizeTween.transform(_animationController.value);
     widget.onSizeChanged!.call(_animationController.value, size);
+  }
+
+  void _handleDragCancel() {
+    // _hold might be null if the drag started.
+    // _drag might be null if the drag activity ended and called _disposeDrag.
+    assert(_hold == null || _drag == null);
+    _hold?.cancel();
+    _drag?.cancel();
+    assert(_hold == null);
+    assert(_drag == null);
+  }
+
+  void _disposeHold() {
+    _hold = null;
+  }
+
+  void _disposeDrag() {
+    _drag = null;
   }
 }
 
