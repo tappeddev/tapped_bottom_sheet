@@ -42,7 +42,8 @@ class _GestureListenerState extends State<GestureListener> {
         final delta = event.delta;
         final primaryDelta = delta.dy;
 
-        /// ⚠️ If not assign the dx to 0, an assertion is not working.
+        /// ⚠️ If not assign the dx to 0, an assertion
+        /// in the constructor of [DragUpdateDetails] is thrown.
         final offset = Offset(0, primaryDelta);
 
         final details = DragUpdateDetails(
@@ -62,7 +63,8 @@ class _GestureListenerState extends State<GestureListener> {
 
         final pixelsPerSecondY = velocity.pixelsPerSecond.dy;
 
-        /// ⚠️ If not assign the dx to 0, an assertion is not working.
+        /// ⚠️ If not assign the dx to 0, an assertion
+        /// in the constructor of [DragEndDetails] is thrown.
         final offset = Offset(0, pixelsPerSecondY);
         final details = DragEndDetails(
           velocity: Velocity(pixelsPerSecond: offset),
