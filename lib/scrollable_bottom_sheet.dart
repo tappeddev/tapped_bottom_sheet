@@ -63,7 +63,7 @@ class ScrollableBottomSheet extends StatefulWidget {
 class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
     with SingleTickerProviderStateMixin {
   final _scrollController = ScrollController();
-  late AnimationController _animationController;
+  late final AnimationController _animationController;
   var _isScrollingEnabled = false;
   var _isScrollingBlocked = false;
 
@@ -202,6 +202,10 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
   // region animation and scroll
 
   void _onScroll() {
+    // No need to do anything when [canDrag] is disabled, since the list scrolls
+    // by default without any calls from our implementation.
+    if (!widget.canDrag) return;
+
     if (!_isScrollingEnabled || _isScrollingBlocked) {
       _scrollController.jumpTo(0);
     }
