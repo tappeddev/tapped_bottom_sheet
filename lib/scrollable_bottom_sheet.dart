@@ -200,7 +200,6 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
     if (!_isScrollingEnabled && !_isScrollingBlocked) {
       _animationController.value -=
           primaryDelta / (widget.maxHeight - widget.minHeight);
-      print("changing vlaue of cotroller. ${_animationController.value}");
     }
 
     // if the panel is open and the user hasn't scrolled, we need to determine
@@ -342,7 +341,6 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
     );
 
     await Future<void>.delayed(Duration.zero);
-    if (!mounted) return;
 
     // Reset the initial state, since we had some issues in the full state of the booking summary
     setState(() {
