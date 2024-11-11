@@ -21,6 +21,13 @@ class ScrollableBottomSheet extends StatefulWidget {
   final Duration animationDuration;
   final double? initialPosition;
 
+  /// If set to [true] the sheet tries to maintain the position in pixels
+  /// when [maxHeight] or [minHeight] changes.
+  /// This avoids jumping since changes in any of the two values has an
+  /// direct impact on the sheets position.
+  /// Defaults to [false].
+  final bool maintainPositionOnConstraintChange;
+
   final double borderRadiusTop;
 
   final Color borderColor;
@@ -50,6 +57,7 @@ class ScrollableBottomSheet extends StatefulWidget {
     this.shadows,
     this.minFlingVelocity = _kMinFlingVelocity,
     this.completeFlingVelocity = _kCompleteFlingVelocity,
+    this.maintainPositionOnConstraintChange = false,
   });
 
   @override
@@ -66,6 +74,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
   late final AnimationController _animationController;
   var _isScrollingEnabled = false;
   var _isScrollingBlocked = false;
+  var _didStartScrolling = false;
 
   Drag? _drag;
 
@@ -98,6 +107,22 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
     _scrollController.dispose();
     _animationController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ScrollableBottomSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!widget.maintainPositionOnConstraintChange) return;
+    if (oldWidget.maxHeight == widget.maxHeight &&
+        oldWidget.minHeight == widget.minHeight) return;
+
+    final previousPositionPixels = Tween(
+      begin: oldWidget.minHeight,
+      end: oldWidget.maxHeight,
+    ).transform(_animationController.value);
+    final newValue = _pixelToValue(previousPositionPixels);
+    _animationController.value = newValue.clamp(0.0, 1.0);
   }
 
   @override
@@ -153,6 +178,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
   void _onDragUpdate(DragUpdateDetails details) {
     final delta = details.delta;
     final primaryDelta = delta.dy;
+    _didStartScrolling = true;
 
     if (_isScrollingEnabled && _isPanelOpen) {
       // _drag might be null if the drag activity ended and called _disposeDrag.
@@ -212,7 +238,10 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
   }
 
   void _onDragEnd(DragEndDetails details) {
+    if (!_didStartScrolling) return;
     if (_isScrollingBlocked) return;
+
+    _didStartScrolling = false;
 
     // let the current animation finish before starting a new one
     if (_animationController.isAnimating) return;
