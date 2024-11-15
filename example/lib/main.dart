@@ -1,5 +1,5 @@
+import 'package:example/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:tapped_bottom_sheet/scrollable_bottom_sheet.dart';
 
 void main() {
   runApp(const MainApp());
@@ -10,44 +10,25 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = MediaQuery.of(context).size.height - kToolbarHeight - 100;
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Bottom Sheet Example'),
-        ),
-        body: Stack(
-          children: [
-            Positioned.fill(
-              child: Container(
-                color: Colors.green,
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: ScrollableBottomSheet(
-                snapPositions: [maxHeight / 2],
-                initialPosition: maxHeight / 2,
-                maxHeight: maxHeight,
-                minHeight: 100,
-                builder: (context, scrollController) {
-                  return ListView.builder(
-                    controller: scrollController,
-                    itemCount: 100,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text('Element $index'),
-                      );
-                    },
-                  );
-                },
-                borderRadiusTop: 15,
-                borderColor: Colors.black,
-                backgroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
+    return const MaterialApp(
+      home: HomePage(),
+    );
+  }
+}
+
+class TestHomePage extends StatelessWidget {
+  const TestHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Test"),
+      ),
+      body: ListView.builder(
+        itemBuilder: (context, index) {
+          return ElevatedButton(onPressed: () {}, child: Text(index.toString()));
+        },
       ),
     );
   }
