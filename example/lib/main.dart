@@ -23,12 +23,14 @@ class TestHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Test"),
+        title: const Text("Test"),
       ),
       body: ListView.builder(
         itemBuilder: (context, index) {
           return ElevatedButton(
-              onPressed: () {}, child: Text(index.toString()));
+            onPressed: () {},
+            child: Text(index.toString()),
+          );
         },
       ),
     );

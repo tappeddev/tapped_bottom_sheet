@@ -46,8 +46,8 @@ class _HomePageState extends State<HomePage> {
                   itemBuilder: (context, index) {
                     return ListTile(
                       title: ElevatedButton(
-                        child: Text('Element $index'),
                         onPressed: index == 0 ? _open : () {},
+                        child: Text('Element $index'),
                       ),
                     );
                   },
@@ -61,8 +61,9 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: _scrollToLastElementOfList,
-          child: const Icon(Icons.arrow_downward_rounded)),
+        onPressed: _scrollToLastElementOfList,
+        child: const Icon(Icons.arrow_downward_rounded),
+      ),
     );
   }
 
@@ -78,7 +79,10 @@ class _HomePageState extends State<HomePage> {
     unawaited(_scrollableBSKey.currentState!.open());
 
     final maxScrollExtent = _scrollController!.position.maxScrollExtent;
-    await _scrollController?.animateTo(maxScrollExtent,
-        duration: const Duration(seconds: 1), curve: Curves.bounceIn);
+    await _scrollController?.animateTo(
+      maxScrollExtent,
+      duration: const Duration(seconds: 1),
+      curve: Curves.bounceIn,
+    );
   }
 }
