@@ -60,8 +60,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      floatingActionButton:
-          FloatingActionButton(onPressed: _scrollToLastElementOfList, child: const Icon(Icons.arrow_downward_rounded)),
+      floatingActionButton: FloatingActionButton(
+          onPressed: _scrollToLastElementOfList,
+          child: const Icon(Icons.arrow_downward_rounded)),
     );
   }
 
@@ -70,11 +71,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _scrollToLastElementOfList() async {
-    if (_scrollController == null || _scrollableBSKey.currentState == null) return;
+    if (_scrollController == null || _scrollableBSKey.currentState == null) {
+      return;
+    }
 
     unawaited(_scrollableBSKey.currentState!.open());
 
     final maxScrollExtent = _scrollController!.position.maxScrollExtent;
-    await _scrollController?.animateTo(maxScrollExtent, duration: const Duration(seconds: 1), curve: Curves.bounceIn);
+    await _scrollController?.animateTo(maxScrollExtent,
+        duration: const Duration(seconds: 1), curve: Curves.bounceIn);
   }
 }
