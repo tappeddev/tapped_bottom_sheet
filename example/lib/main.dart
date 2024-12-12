@@ -31,14 +31,34 @@ class MainApp extends StatelessWidget {
                 maxHeight: maxHeight,
                 minHeight: 100,
                 builder: (context, scrollController) {
-                  return ListView.builder(
+                  return SingleChildScrollView(
                     controller: scrollController,
-                    itemCount: 100,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text('Element $index'),
-                      );
-                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Horizontal Scroll"),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Container(
+                                  color: Colors.red,
+                                  width: 100,
+                                  child: Text(index.toString()),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Container(
+                          height: 200,
+                        ),
+                      ],
+                    ),
                   );
                 },
                 borderRadiusTop: 15,
