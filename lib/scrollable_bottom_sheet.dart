@@ -85,6 +85,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
 
   bool get _isPanelOpen => _animationController.value == 1.0;
 
+  bool _isHorizontalScrolling = false;
+
   double _pixelToValue(double pixels) {
     return (pixels - widget.minHeight) / (widget.maxHeight - widget.minHeight);
   }
@@ -130,41 +132,63 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
     final borderRadius =
         BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
 
-    return GestureListener(
-      canDrag: widget.canDrag,
-      onVerticalDragUpdate: (details) => _onDragUpdate(details),
-      onVerticalDragEnd: (details) => _onDragEnd(details),
-      onVerticalDragCancel: () => _handleDragCancel(),
-      child: MediaQuery.removePadding(
-        context: context,
-        removeTop: true,
-        child: Container(
-          decoration: BoxDecoration(
-            boxShadow: widget.shadows,
-            borderRadius: borderRadius,
-            color: widget.backgroundColor,
-          ),
-          // Use a foreground decoration to make sure we don't allocate more height.
-          foregroundDecoration: ShapeDecoration(
-            shape: NonUniformBorder(
-              topWidth: 2,
-              color: widget.borderColor,
+    return NotificationListener(
+      onNotification: (scrollNotification) {
+        if (scrollNotification is ScrollStartNotification &&
+            scrollNotification.metrics.axis == Axis.horizontal) {
+          _isHorizontalScrolling = true;
+        }
+
+        if (scrollNotification is ScrollUpdateNotification &&
+            scrollNotification.metrics.axis == Axis.horizontal) {
+          if (scrollNotification.dragDetails == null) {
+            _isHorizontalScrolling = false;
+          }
+        }
+
+        if (scrollNotification is ScrollEndNotification &&
+            scrollNotification.metrics.axis == Axis.horizontal) {
+          _isHorizontalScrolling = false;
+        }
+
+        return false;
+      },
+      child: GestureListener(
+        canDrag: widget.canDrag,
+        onVerticalDragUpdate: (details) => _onDragUpdate(details),
+        onVerticalDragEnd: (details) => _onDragEnd(details),
+        onVerticalDragCancel: () => _handleDragCancel(),
+        child: MediaQuery.removePadding(
+          context: context,
+          removeTop: true,
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: widget.shadows,
               borderRadius: borderRadius,
+              color: widget.backgroundColor,
             ),
-          ),
-          child: ClipRRect(
-            borderRadius: borderRadius,
-            child: AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return SizedBox(
-                  height: _sizeTween.transform(_animationController.value),
-                  child: child,
-                );
-              },
-              child: Builder(
-                builder: (context) =>
-                    widget.builder(context, _scrollController),
+            // Use a foreground decoration to make sure we don't allocate more height.
+            foregroundDecoration: ShapeDecoration(
+              shape: NonUniformBorder(
+                topWidth: 2,
+                color: widget.borderColor,
+                borderRadius: borderRadius,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: borderRadius,
+              child: AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return SizedBox(
+                    height: _sizeTween.transform(_animationController.value),
+                    child: child,
+                  );
+                },
+                child: Builder(
+                  builder: (context) =>
+                      widget.builder(context, _scrollController),
+                ),
               ),
             ),
           ),
@@ -179,6 +203,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
     final delta = details.delta;
     final primaryDelta = delta.dy;
     _didStartScrolling = true;
+
+    if (_isHorizontalScrolling) return;
 
     if (_isScrollingEnabled && _isPanelOpen) {
       // _drag might be null if the drag activity ended and called _disposeDrag.
