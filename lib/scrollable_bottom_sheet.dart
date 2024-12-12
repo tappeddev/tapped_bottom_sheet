@@ -243,7 +243,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     // by default without any calls from our implementation.
     if (!widget.canDrag) return;
 
-    if (!_isScrollingEnabled || _isScrollingBlocked) {
+    final isScrollingAllowed = _isPanelOpen ? true : _isScrollingEnabled;
+
+    if (!isScrollingAllowed || _isScrollingBlocked) {
       _scrollController.jumpTo(0);
     }
   }
@@ -326,7 +328,10 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet> with Singl
     return _animationController.fling(velocity: -1.0);
   }
 
-  Future<void> open() {
+  Future<void> open() async {
+    if (_isPanelOpen) return;
+
+    setState(() => _isScrollingEnabled = true);
     return _animationController.fling(velocity: 1.0);
   }
 
