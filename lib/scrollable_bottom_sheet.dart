@@ -133,6 +133,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
         BorderRadius.vertical(top: Radius.circular(widget.borderRadiusTop));
 
     return NotificationListener(
+      // Disable vertical scrolling when the user is scrolling in a nested
+      // horizontal scroll view. Otherwise we should slightly move the bottom
+      // sheet vertically up and down which feels buggy.
       onNotification: (scrollNotification) {
         if (scrollNotification is ScrollStartNotification &&
             scrollNotification.metrics.axis == Axis.horizontal) {
@@ -146,6 +149,8 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
           }
         }
 
+        // Drag details are null if the user started a scroll and the
+        // scrollview is continue to scroll without the user touching the view.
         if (scrollNotification is ScrollEndNotification &&
             scrollNotification.metrics.axis == Axis.horizontal) {
           _isHorizontalScrolling = false;
