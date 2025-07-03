@@ -80,8 +80,10 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
 
   ScrollHoldController? _hold;
 
-  Tween<double> get _sizeTween =>
+  Tween<double> get sizeTween =>
       Tween(begin: widget.minHeight, end: widget.maxHeight);
+
+  double get animationValue => _animationController.value;
 
   bool get _isPanelOpen => _animationController.value == 1.0;
 
@@ -186,7 +188,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
                 animation: _animationController,
                 builder: (context, child) {
                   return SizedBox(
-                    height: _sizeTween.transform(_animationController.value),
+                    height: sizeTween.transform(_animationController.value),
                     child: child,
                   );
                 },
@@ -306,7 +308,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
       if (scrollPixelPerSeconds > widget.minFlingVelocity) {
         _flingPanelToPosition(nearestSnapPoint, flingVelocity);
       } else {
-        final pixels = _sizeTween.transform(nearestSnapPoint);
+        final pixels = sizeTween.transform(nearestSnapPoint);
 
         animateTo(pixels: pixels, duration: widget.animationDuration);
       }
@@ -361,7 +363,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
     final newPosition =
         _findNearestRelativeSnapPoint(target: _animationController.value);
     return animateTo(
-      pixels: _sizeTween.transform(newPosition),
+      pixels: sizeTween.transform(newPosition),
       duration: widget.animationDuration,
     );
   }
@@ -398,7 +400,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
   void _notifyScrollListeners() {
     if (widget.onSizeChanged == null) return;
 
-    final size = _sizeTween.transform(_animationController.value);
+    final size = sizeTween.transform(_animationController.value);
     widget.onSizeChanged!.call(_animationController.value, size);
   }
 
