@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:non_uniform_border/non_uniform_border.dart';
 import 'package:tapped_bottom_sheet/gesture_listener.dart';
+import 'package:tapped_bottom_sheet/scrollable_bottom_sheet_data.dart';
 
 typedef ScrollableBottomSheetBuilder = Widget Function(
   BuildContext context,
@@ -187,9 +188,16 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
               child: AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
+                  final height =
+                      sizeTween.transform(_animationController.value);
+
                   return SizedBox(
-                    height: sizeTween.transform(_animationController.value),
-                    child: child,
+                    height: height,
+                    child: ScrollableBottomSheetData(
+                      currentHeight: height,
+                      animationValue: _animationController.value,
+                      child: child!,
+                    ),
                   );
                 },
                 child: Builder(
