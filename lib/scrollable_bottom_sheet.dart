@@ -380,10 +380,11 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
   Future<void> animateTo({
     required double pixels,
     Duration? duration,
+    Curve curve = Curves.easeOutCirc,
   }) async {
     await _animationController.animateTo(
       _pixelToValue(pixels),
-      curve: Curves.easeOutCirc,
+      curve: curve,
       duration: duration,
     );
 
