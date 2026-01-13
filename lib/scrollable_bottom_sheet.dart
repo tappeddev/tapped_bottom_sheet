@@ -382,8 +382,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
     Duration? duration,
     Curve curve = Curves.easeOutCirc,
   }) async {
+    final animationValue = _pixelToValue(pixels);
     await _animationController.animateTo(
-      _pixelToValue(pixels),
+      animationValue,
       curve: curve,
       duration: duration,
     );
@@ -392,7 +393,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
 
     // Reset the initial state, since we had some issues in the full state of the booking summary
     setState(() {
-      _isScrollingEnabled = false;
+      _isScrollingEnabled = animationValue == 1.0 ? false : false;
       _isScrollingBlocked = false;
     });
   }
