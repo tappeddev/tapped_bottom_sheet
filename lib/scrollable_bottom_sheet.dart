@@ -120,7 +120,9 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
 
     if (!widget.maintainPositionOnConstraintChange) return;
     if (oldWidget.maxHeight == widget.maxHeight &&
-        oldWidget.minHeight == widget.minHeight) return;
+        oldWidget.minHeight == widget.minHeight) {
+      return;
+    }
 
     final previousPositionPixels = Tween(
       begin: oldWidget.minHeight,
@@ -393,7 +395,7 @@ class ScrollableBottomSheetState extends State<ScrollableBottomSheet>
 
     // Reset the initial state, since we had some issues in the full state of the booking summary
     setState(() {
-      _isScrollingEnabled = animationValue == 1.0 ? false : false;
+      _isScrollingEnabled = _isPanelOpen;
       _isScrollingBlocked = false;
     });
   }

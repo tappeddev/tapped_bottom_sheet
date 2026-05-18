@@ -46,5 +46,10 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: ${{ env.FLUTTER_CHANNEL }}
       - name: Check formatting
-        run: find . -name "*.dart" ! -name "*.g.dart" ! -name "*.freezed.dart" ! -path '*/generated/*' ! -path '*/gen/*' | xargs dart format --set-exit-if-changed
+        run: |
+          flutter pub get 
+          cd example
+          flutter pub get 
+          cd ..
+          find . -name "*.dart" ! -name "*.g.dart" ! -name "*.freezed.dart" ! -path '*/generated/*' ! -path '*/gen/*' | xargs dart format --set-exit-if-changed
 
